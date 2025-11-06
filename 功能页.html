@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>食品安全与个人健康饮食管理系统</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #409EFF 0%, #64b5f6 100%);
+            color: white;
+            padding: 0 20px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            position: relative;
+            z-index: 100;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .custom-logo {
+            height: 45px;
+            width: auto;
+            margin-right: 12px;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+        }
+        
+        .sidebar {
+            width: 220px;
+            background-color: #304156;
+            color: #fff;
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            height: calc(100vh - 70px);
+        }
+        
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #ebeef5;
+            font-size: 16px;
+            font-weight: bold;
+            color: #409EFF;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .chart-container {
+            height: 300px;
+            width: 100%;
+        }
+        
+        .food-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ebeef5;
+        }
+        
+        .food-item:last-child {
+            border-bottom: none;
+        }
+        
+        .food-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 4px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        
+        .food-info {
+            flex: 1;
+        }
+        
+        .food-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .food-desc {
+            color: #909399;
+            font-size: 13px;
+        }
+        
+        .warning-tag {
+            margin-left: 10px;
+        }
+        
+        .nutrition-value {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .nutrition-label {
+            color: #606266;
+        }
+        
+        .nutrition-bar {
+            height: 8px;
+            background: #ebeef5;
+            border-radius: 4px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .nutrition-progress {
+            height: 100%;
+            border-radius: 4px;
+        }
+        
+        .recipe-card {
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .recipe-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .recipe-image {
+            height: 160px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .recipe-title {
+            padding: 15px;
+            font-weight: bold;
+        }
+        
+        .stats-item {
+            text-align: center;
+            padding: 15px;
+        }
+        
+        .stats-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #409EFF;
+            margin-bottom: 5px;
+        }
+        
+        .stats-label {
+            color: #909399;
+        }
+        
+        .warning-level-high {
+            color: #F56C6C;
+            font-weight: bold;
+        }
+        
+        .warning-level-medium {
+            color: #E6A23C;
+            font-weight: bold;
+        }
+        
+        .warning-level-low {
+            color: #67C23A;
+            font-weight: bold;
+        }
+        
+        .nutrition-chart {
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .recipe-tags {
+            margin-top: 10px;
+        }
+        
+        .recipe-detail {
+            margin-top: 15px;
+        }
+        
+        .settings-form {
+            max-width: 600px;
+            margin-top: 20px;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .nutrition-percent {
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .status-details {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #606266;
+        }
+
+        .status-detail-item {
+            margin-bottom: 5px;
+        }
+
+        .health-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .health-metric {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .health-metric strong {
+            color: #409EFF;
+        }
+
+        .health-advice {
+            background: #e8f4fd;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #409EFF;
+            font-size: 12px;
+        }
+        
+        .data-incomplete {
+            color: #909399;
+            font-style: italic;
+        }
+
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 180px;
+            }
+            
+            .dashboard-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                order: 2;
+            }
+            
+            .content {
+                order: 1;
+            }
+            
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="app-container">
+            <header class="header">
+                <div class="logo-container">
+                    <img src="picture/logo.png" class="custom-logo" alt="Logo" onerror="this.style.display='none'">
+                    <span class="logo-text">食安健康管理系统</span>
+                </div>
+                <div>
+                    <el-button type="text" icon="el-icon-user" style="color: white;">{{ currentUser.username || '用户' }}</el-button>
+                    <el-button type="text" icon="el-icon-setting" style="color: white;" @click="activeMenu = 'settings'">设置</el-button>
+                    <el-button type="text" icon="el-icon-switch-button" style="color: white;" @click="handleLogout">退出</el-button>
+                </div>
+            </header>
+            
+            <div class="main-content">
+                <aside class="sidebar">
+                    <el-menu
+                        :default-active="activeMenu"
+                        class="el-menu-vertical-demo"
+                        background-color="#304156"
+                        text-color="#bfcbd9"
+                        active-text-color="#409EFF"
+                        :collapse="isCollapse">
+                        <el-menu-item index="dashboard" @click="activeMenu = 'dashboard'">
+                            <i class="el-icon-data-line"></i>
+                            <span slot="title">健康仪表盘</span>
+                        </el-menu-item>
+                        <el-menu-item index="diet" @click="activeMenu = 'diet'">
+                            <i class="el-icon-notebook-2"></i>
+                            <span slot="title">饮食记录</span>
+                        </el-menu-item>
+                        <el-menu-item index="search" @click="activeMenu = 'search'">
+                            <i class="el-icon-search"></i>
+                            <span slot="title">食品查询</span>
+                        </el-menu-item>
+                        <el-menu-item index="safety" @click="activeMenu = 'safety'">
+                            <i class="el-icon-warning-outline"></i>
+                            <span slot="title">安全预警</span>
+                        </el-menu-item>
+                        <el-menu-item index="nutrition" @click="activeMenu = 'nutrition'; refreshCharts()">
+                            <i class="el-icon-notebook-1"></i>
+                            <span slot="title">营养分析</span>
+                        </el-menu-item>
+                        <el-menu-item index="recipes" @click="activeMenu = 'recipes'">
+                            <i class="el-icon-tableware"></i>
+                            <span slot="title">健康食谱</span>
+                        </el-menu-item>
+                        <el-menu-item index="settings" @click="activeMenu = 'settings'">
+                            <i class="el-icon-user"></i>
+                            <span slot="title">个人设置</span>
+                        </el-menu-item>
+                    </el-menu>
+                </aside>
+                
+                <main class="content">
+                    <div v-if="activeMenu === 'dashboard'">
+                        <div class="dashboard-header">
+                            <div>
+                                <h2 style="margin: 0;">健康仪表盘</h2>
+                                <p class="el-text--secondary">查看日期: {{ formatDisplayDate(viewDate) }} | 最近更新：{{ currentTime }}</p>
+                            </div>
+                            <el-date-picker
+                                v-model="viewDate"
+                                type="date"
+                                placeholder="选择日期"
+                                @change="refreshDashboard"
+                                value-format="yyyy-MM-dd"
+                                style="width: 160px;">
+                            </el-date-picker>
+                        </div>
+                        
+                        <div class="dashboard-cards">
+                            <div class="card">
+                                <div class="card-header">
+                                    <span>营养摄入</span>
+                                    <el-tooltip :content="viewDateNutrition.statusDetails.join('；')" placement="top">
+                                        <el-tag :type="viewDateNutrition.status">{{ viewDateNutrition.statusText }}</el-tag>
+                                    </el-tooltip>
+                                </div>
+                                <div class="card-body">
+                                    <div class="nutrition-value">
+                                        <span class="nutrition-label">热量</span>
+                                        <span>{{ viewDateNutrition.calories }}/{{ currentUser.calorie_goal }} kcal
+                                            <span class="nutrition-percent" :style="{color: viewDateNutrition.caloriesColor}">
+                                                ({{ viewDateNutrition.caloriesPercent }}%)
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="nutrition-bar">
+                                        <div class="nutrition-progress" :style="{width: viewDateNutrition.caloriesPercent + '%', background: viewDateNutrition.caloriesColor}"></div>
+                                    </div>
+                                    
+                                    <div class="nutrition-value">
+                                        <span class="nutrition-label">蛋白质</span>
+                                        <span>{{ viewDateNutrition.protein }}/{{ viewDateNutrition.proteinGoal }} g
+                                            <span class="nutrition-percent" :style="{color: viewDateNutrition.proteinColor}">
+                                                ({{ viewDateNutrition.proteinPercent }}%)
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="nutrition-bar">
+                                        <div class="nutrition-progress" :style="{width: viewDateNutrition.proteinPercent + '%', background: viewDateNutrition.proteinColor}"></div>
+                                    </div>
+                                    
+                                    <div class="nutrition-value">
+                                        <span class="nutrition-label">脂肪</span>
+                                        <span>{{ viewDateNutrition.fat }}/{{ viewDateNutrition.fatGoal }} g
+                                            <span class="nutrition-percent" :style="{color: viewDateNutrition.fatColor}">
+                                                ({{ viewDateNutrition.fatPercent }}%)
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="nutrition-bar">
+                                        <div class="nutrition-progress" :style="{width: viewDateNutrition.fatPercent + '%', background: viewDateNutrition.fatColor}"></div>
+                                    </div>
+                                    
+                                    <div class="nutrition-value">
+                                        <span class="nutrition-label">碳水化合物</span>
+                                        <span>{{ viewDateNutrition.carbs }}/{{ viewDateNutrition.carbsGoal }} g
+                                            <span class="nutrition-percent" :style="{color: viewDateNutrition.carbsColor}">
+                                                ({{ viewDateNutrition.carbsPercent }}%)
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="nutrition-bar">
+                                        <div class="nutrition-progress" :style="{width: viewDateNutrition.carbsPercent + '%', background: viewDateNutrition.carbsColor}"></div>
+                                    </div>
+
+                                    <div class="status-details">
+                                        <div v-for="(detail, index) in viewDateNutrition.statusDetails" :key="index" class="status-detail-item">
+                                            • {{ detail }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header">
+                                    <span>食品安全预警</span>
+                                    <el-badge :value="foodWarnings.length" class="item"></el-badge>
+                                </div>
+                                <div class="card-body">
+                                    <div v-if="loadingWarnings" class="loading-container">
+                                        <el-icon class="is-loading"><el-icon-loading /></el-icon>
+                                        <span style="margin-left: 10px;">加载中...</span>
+                                    </div>
+                                    <div v-else-if="foodWarnings.length === 0" class="loading-container">
+                                        <span class="data-incomplete">暂无安全预警</span>
+                                    </div>
+                                    <div v-else>
+                                        <div class="food-item" v-for="warning in recentFoodWarnings" :key="warning.id">
+                                            <img class="food-img" :src="warning.imageUrl || '/api/static/default-food.jpg'" :alt="warning.foodName">
+                                            <div class="food-info">
+                                                <div class="food-name">
+                                                    {{ warning.foodName }} <el-tag class="warning-tag" :type="getWarningTagType(warning.riskLevel)" size="mini">{{ warning.riskType }}</el-tag>
+                                                </div>
+                                                <div class="food-desc">{{ warning.description }}</div>
+                                                <div style="margin-top: 5px; font-size: 12px; color: #F56C6C;">
+                                                    <i class="el-icon-warning"></i> 预警级别: <span :class="'warning-level-' + warning.riskLevel">{{ getWarningLevelText(warning.riskLevel) }}</span> | 发布时间: {{ warning.publishDate }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header">
+                                    <span>健康数据统计</span>
+                                    <el-tag :type="healthStats.bmiType">{{ healthStats.bmiStatus }}</el-tag>
+                                </div>
+                                <div class="card-body">
+                                    <div style="display: flex; justify-content: space-around; margin-bottom: 20px;">
+                                        <div class="stats-item">
+                                            <div class="stats-value">{{ currentUser.weight || '-' }}</div>
+                                            <div class="stats-label">体重(kg)</div>
+                                            <el-tag size="mini" :type="healthStats.weightType" style="margin-top: 5px;">
+                                                {{ healthStats.weightStatus }}
+                                            </el-tag>
+                                        </div>
+                                        <div class="stats-item">
+                                            <div class="stats-value">{{ healthStats.bmi }}</div>
+                                            <div class="stats-label">BMI</div>
+                                            <el-tag size="mini" :type="healthStats.bmiType" style="margin-top: 5px;">
+                                                {{ healthStats.bmiStatus }}
+                                            </el-tag>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="health-metrics">
+                                        <div class="health-metric">
+                                            <strong>基础代谢:</strong> {{ healthStats.bmr }}
+                                        </div>
+                                        <div class="health-metric">
+                                            <strong>每日消耗:</strong> {{ healthStats.tdee }}
+                                        </div>
+                                        <div class="health-metric">
+                                            <strong>理想体重:</strong> {{ healthStats.idealWeight }}
+                                        </div>
+                                        <div class="health-metric">
+                                            <strong>体脂率:</strong> {{ healthStats.bodyFat }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="health-advice">
+                                        <div style="font-weight: bold; margin-bottom: 5px; color: #409EFF;">
+                                            <i class="el-icon-info"></i> 健康建议
+                                        </div>
+                                        <div v-for="(advice, index) in getHealthAdvice()" :key="index" style="margin-bottom: 3px;">
+                                            • {{ advice }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h3>今日推荐食谱</h3>
+                        <div class="dashboard-cards">
+                            <div v-if="loadingRecipes" class="loading-container">
+                                <el-icon class="is-loading"><el-icon-loading /></el-icon>
+                                <span style="margin-left: 10px;">加载推荐食谱...</span>
+                            </div>
+                            <div v-else-if="recommendedRecipes.length === 0" class="loading-container">
+                                <span class="data-incomplete">暂无推荐食谱</span>
+                            </div>
+                            <div v-else class="card recipe-card" v-for="recipe in recommendedRecipes" :key="recipe.id" @click="showRecipeDetail(recipe.id)">
+                                <div class="recipe-image" :style="{ backgroundImage: 'url(' + (recipe.imageUrl || '/api/static/default-recipe.jpg') + ')' }"></div>
+                                <div class="recipe-title">{{ recipe.name }}</div>
+                                <div class="card-body">
+                                    <p>{{ recipe.description }}</p>
+                                    <div style="margin-top: 15px;">
+                                        <el-tag v-for="tag in getRecipeTags(recipe.id)" :key="tag" size="mini" :type="getTagType(tag)">{{ tag }}</el-tag>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div v-if="activeMenu === 'diet'">
+                        <h2>我的饮食记录</h2>
+                        <el-button type="primary" icon="el-icon-plus" @click="showAddDietDialog">添加饮食记录</el-button>
+                        
+                        <el-table :data="dietRecords" style="width: 100%; margin-top: 20px;" v-loading="loadingDietRecords">
+                            <el-table-column label="日期" width="120">
+                                <template slot-scope="scope">
+                                    {{ formatDisplayDate(scope.row.date) }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="食物">
+                                <template slot-scope="scope">
+                                    {{ getFoodName(scope.row.foodId) }} ({{ scope.row.quantity }}g)
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="热量(cal)" width="100">
+                                <template slot-scope="scope">
+                                    {{ calculateFoodCalories(scope.row.foodId, scope.row.quantity) }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="操作" width="120">
+                                <template slot-scope="scope">
+                                    <el-button size="mini" @click="editDietRecord(scope.row)">编辑</el-button>
+                                    <el-button size="mini" type="danger" @click="deleteDietRecord(scope.row)">删除</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        
+                        <el-dialog :title="dietDialogTitle" :visible.sync="dietDialogVisible" width="600px">
+                            <el-form :model="dietForm" :rules="dietRules" ref="dietForm">
+                                <el-form-item label="日期" prop="date" label-width="80px">
+                                    <el-date-picker v-model="dietForm.date" type="date" placeholder="选择日期" style="width: 100%;" value-format="yyyy-MM-dd"></el-date-picker>
+                                </el-form-item>
+                                <el-form-item label="食物" prop="foodId" label-width="80px">
+                                    <el-select v-model="dietForm.foodId" placeholder="请选择食物" style="width: 100%;" filterable>
+                                        <el-option v-for="food in foodDatabase" :key="food.id" :label="food.name" :value="food.id"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="食用量(g)" prop="quantity" label-width="80px">
+                                    <el-input-number v-model="dietForm.quantity" :min="1" :max="1000" style="width: 100%;"></el-input-number>
+                                </el-form-item>
+                                <el-form-item label="热量" prop="calories" label-width="80px">
+                                    <el-input v-model="dietForm.calories" placeholder="自动计算热量" readonly>
+                                        <template slot="append">cal</template>
+                                    </el-input>
+                                </el-form-item>
+                            </el-form>
+                            <div slot="footer" class="dialog-footer">
+                                <el-button @click="dietDialogVisible = false">取 消</el-button>
+                                <el-button type="primary" @click="saveDietRecord">确 定</el-button>
+                            </div>
+                        </el-dialog>
+                    </div>
+                    
+                    <div v-if="activeMenu === 'search'">
+                        <h2>食品查询</h2>
+                        <el-input placeholder="请输入食品名称" v-model="searchKeyword" style="width: 300px;">
+                            <el-button slot="append" icon="el-icon-search" @click="searchFood">搜索</el-button>
+                        </el-input>
+                        
+                        <el-table :data="filteredFoods" style="width: 100%; margin-top: 20px;" v-loading="loadingFoodDatabase">
+                            <el-table-column prop="name" label="食品名称"></el-table-column>
+                            <el-table-column prop="calories" label="热量(cal/100g)" width="120"></el-table-column>
+                            <el-table-column prop="protein" label="蛋白质(g)" width="100"></el-table-column>
+                            <el-table-column prop="fat" label="脂肪(g)" width="100"></el-table-column>
+                            <el-table-column prop="carbs" label="碳水(g)" width="100"></el-table-column>
+                            <el-table-column label="操作" width="100">
+                                <template slot-scope="scope">
+                                    <el-button size="mini" @click="addToDiet(scope.row)">添加到饮食</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                    
+                    <div v-if="activeMenu === 'safety'">
+                        <h2>食品安全预警</h2>
+                        <el-alert :title="`当前有${foodWarnings.length}项食品安全预警，请注意查看`" type="warning" :closable="false" style="margin-bottom: 20px;"></el-alert>
+                        
+                        <div class="dashboard-cards">
+                            <div class="card" v-for="riskLevel in riskLevels" :key="riskLevel">
+                                <div class="card-header">
+                                    <span>{{ getRiskLevelText(riskLevel) }}预警</span>
+                                    <el-tag :type="getRiskTagType(riskLevel)">{{ getRiskLevelText(riskLevel) }}</el-tag>
+                                </div>
+                                <div class="card-body">
+                                    <div v-if="loadingWarnings" class="loading-container">
+                                        <el-icon class="is-loading"><el-icon-loading /></el-icon>
+                                        <span style="margin-left: 10px;">加载中...</span>
+                                    </div>
+                                    <div v-else-if="getWarningsByLevel(riskLevel).length === 0" class="loading-container">
+                                        <span class="data-incomplete">暂无{{ getRiskLevelText(riskLevel) }}预警</span>
+                                    </div>
+                                    <div v-else>
+                                        <div class="food-item" v-for="warning in getWarningsByLevel(riskLevel)" :key="warning.id">
+                                            <img class="food-img" :src="warning.imageUrl || '/api/static/default-food.jpg'" :alt="warning.foodName">
+                                            <div class="food-info">
+                                                <div class="food-name">
+                                                    {{ warning.foodName }} <el-tag class="warning-tag" :type="getWarningTagType(warning.riskLevel)" size="mini">{{ warning.riskType }}</el-tag>
+                                                </div>
+                                                <div class="food-desc">{{ warning.description }}</div>
+                                                <div style="margin-top: 5px; font-size: 12px;" :class="'warning-level-' + warning.riskLevel">
+                                                    <i class="el-icon-warning"></i> 预警级别: <span :class="'warning-level-' + warning.riskLevel">{{ getWarningLevelText(warning.riskLevel) }}</span> | 发布时间: {{ warning.publishDate }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div v-if="activeMenu === 'nutrition'">
+                        <h2>营养分析</h2>
+                        <p class="el-text--secondary">分析您的营养摄入情况，提供个性化建议</p>
+                        
+                        <div class="dashboard-cards">
+                            <div class="card">
+                                <div class="card-header">
+                                    <span>本周营养摄入趋势</span>
+                                    <el-button size="mini" @click="refreshCharts">刷新图表</el-button>
+                                </div>
+                                <div class="card-body">
+                                    <div id="nutritionTrendChart" class="nutrition-chart"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header">
+                                    <span>营养均衡分析</span>
+                                </div>
+                                <div class="card-body">
+                                    <div id="nutritionBalanceChart" class="nutrition-chart"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" style="margin-top: 20px;">
+                            <div class="card-header">
+                                <span>营养建议</span>
+                            </div>
+                            <div class="card-body">
+                                <el-alert :title="nutritionSuggestions.protein" :type="nutritionSuggestions.proteinType" style="margin-bottom: 15px;"></el-alert>
+                                <el-alert :title="nutritionSuggestions.fat" :type="nutritionSuggestions.fatType" style="margin-bottom: 15px;"></el-alert>
+                                <el-alert :title="nutritionSuggestions.carbs" :type="nutritionSuggestions.carbsType" style="margin-bottom: 15px;"></el-alert>
+                                
+                                <h3>个性化建议</h3>
+                                <ul style="padding-left: 20px; margin-top: 10px;">
+                                    <li v-for="suggestion in nutritionSuggestions.custom" :key="suggestion.id" style="margin-bottom: 10px;">
+                                        {{ suggestion.text }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div v-if="activeMenu === 'recipes'">
+                        <h2>健康食谱</h2>
+                        <p class="el-text--secondary">为您推荐适合的健康食谱</p>
+                        
+                        <el-tabs v-model="recipeType" style="margin-top: 20px;">
+                            <el-tab-pane v-for="mealType in mealTypes" :key="mealType.value" :label="mealType.label" :name="mealType.value">
+                                <div class="dashboard-cards">
+                                    <div v-if="loadingRecipes" class="loading-container">
+                                        <el-icon class="is-loading"><el-icon-loading /></el-icon>
+                                        <span style="margin-left: 10px;">加载食谱...</span>
+                                    </div>
+                                    <div v-else-if="getRecipesByMealType(mealType.value).length === 0" class="loading-container">
+                                        <span class="data-incomplete">暂无{{ mealType.label }}食谱</span>
+                                    </div>
+                                    <div v-else class="card recipe-card" v-for="recipe in getRecipesByMealType(mealType.value)" :key="recipe.id" @click="showRecipeDetail(recipe.id)">
+                                        <div class="recipe-image" :style="{ backgroundImage: 'url(' + (recipe.imageUrl || '/api/static/default-recipe.jpg') + ')' }"></div>
+                                        <div class="recipe-title">{{ recipe.name }}</div>
+                                        <div class="card-body">
+                                            <p>{{ recipe.description }}</p>
+                                            <div class="recipe-tags">
+                                                <el-tag v-for="tag in getRecipeTags(recipe.id)" :key="tag" size="mini" :type="getTagType(tag)">{{ tag }}</el-tag>
+                                            </div>
+                                            <div class="recipe-detail">
+                                                <div><strong>热量:</strong> {{ recipe.calories }} kcal</div>
+                                                <div><strong>准备时间:</strong> {{ recipe.prepTime }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </el-tab-pane>
+                        </el-tabs>
+                    </div>
+                    
+                    <div v-if="activeMenu === 'settings'">
+                        <h2>个人设置</h2>
+                        <p class="el-text--secondary">管理您的个人资料和系统偏好</p>
+                        
+                        <div class="card settings-form">
+                            <div class="card-body">
+                                <el-form :model="currentUser" label-width="100px">
+                                    <el-form-item label="用户名">
+                                        <el-input v-model="currentUser.username" style="width: 300px;"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="邮箱">
+                                        <el-input v-model="currentUser.email" style="width: 300px;"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="性别">
+                                        <el-radio-group v-model="currentUser.gender">
+                                            <el-radio label="male">男</el-radio>
+                                            <el-radio label="female">女</el-radio>
+                                        </el-radio-group>
+                                    </el-form-item>
+                                    <el-form-item label="年龄">
+                                        <el-input-number v-model="currentUser.age" :min="0" :max="120" placeholder="请输入年龄"></el-input-number>
+                                    </el-form-item>
+                                    <el-form-item label="身高(cm)">
+                                        <el-input-number v-model="currentUser.height" :min="0" :max="250" placeholder="请输入身高"></el-input-number>
+                                    </el-form-item>
+                                    <el-form-item label="体重(kg)">
+                                        <el-input-number v-model="currentUser.weight" :min="0" :max="200" placeholder="请输入体重"></el-input-number>
+                                    </el-form-item>
+                                    <el-form-item label="每日热量目标">
+                                        <el-slider v-model="currentUser.calorie_goal" :min="1000" :max="3000" :step="100" show-stops></el-slider>
+                                        <span style="margin-left: 20px;">{{ currentUser.calorie_goal }} kcal</span>
+                                    </el-form-item>
+                                    <el-form-item label="饮食偏好">
+                                        <el-checkbox-group v-model="currentUser.diet_preferences">
+                                            <el-checkbox label="vegetarian">素食</el-checkbox>
+                                            <el-checkbox label="lowCarb">低碳水</el-checkbox>
+                                            <el-checkbox label="lowFat">低脂肪</el-checkbox>
+                                            <el-checkbox label="highProtein">高蛋白</el-checkbox>
+                                            <el-checkbox label="glutenFree">无麸质</el-checkbox>
+                                        </el-checkbox-group>
+                                    </el-form-item>
+                                    <el-form-item label="过敏食物">
+                                        <el-select v-model="currentUser.allergies" multiple placeholder="请选择过敏食物" style="width: 300px;">
+                                            <el-option label="牛奶" value="milk"></el-option>
+                                            <el-option label="鸡蛋" value="egg"></el-option>
+                                            <el-option label="花生" value="peanut"></el-option>
+                                            <el-option label="海鲜" value="seafood"></el-option>
+                                            <el-option label="大豆" value="soy"></el-option>
+                                            <el-option label="坚果" value="nuts"></el-option>
+                                            <el-option label="小麦" value="wheat"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    <el-form-item>
+                                        <el-button type="primary" @click="saveSettings">保存设置</el-button>
+                                        <el-button @click="resetSettings">重置</el-button>
+                                    </el-form-item>
+                                </el-form>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+        
+        const api = {
+            async request(url, options = {}) {
+                try {
+                    const token = localStorage.getItem('token');
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    };
+                    
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
+                    
+                    const fullUrl = url.startsWith('/') ? `${API_BASE_URL}${url}` : `${API_BASE_URL}/${url}`;
+                    
+                    const response = await fetch(fullUrl, {
+                        headers,
+                        ...options
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('user');
+                            window.location.href = 'index.html';
+                            throw new Error('登录已过期，请重新登录');
+                        }
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    throw error;
+                }
+            },
+
+            async get(url) {
+                return this.request(url);
+            },
+
+            async post(url, data) {
+                return this.request(url, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+            },
+
+            async put(url, data) {
+                return this.request(url, {
+                    method: 'PUT',
+                    body: JSON.stringify(data)
+                });
+            },
+
+            async delete(url) {
+                return this.request(url, {
+                    method: 'DELETE'
+                });
+            }
+        };
+
+        new Vue({
+            el: '#app',
+            data: {
+                isLoggedIn: true,
+                currentTime: new Date().toLocaleString(),
+                isCollapse: false,
+                activeMenu: 'dashboard',
+                recipeType: 'breakfast',
+                viewDate: new Date().toISOString().split('T')[0],
+                searchKeyword: '',
+                
+                loadingFoodDatabase: false,
+                loadingWarnings: false,
+                loadingRecipes: false,
+                loadingDietRecords: false,
+                loadingUser: false,
+                
+                currentUser: {
+                    id: 1,
+                    username: '',
+                    email: '',
+                    gender: '',
+                    age: null,
+                    height: null,
+                    weight: null,
+                    calorie_goal: 2000,
+                    diet_preferences: [],
+                    allergies: [],
+                    created_at: '',
+                    updated_at: ''
+                },
+                
+                dietRecords: [],
+                
+                dietDialogVisible: false,
+                dietDialogTitle: '添加饮食记录',
+                dietForm: {
+                    id: null,
+                    date: '',
+                    foodId: null,
+                    quantity: 100,
+                    calories: 0
+                },
+                dietRules: {
+                    date: [
+                        { required: true, message: '请选择日期', trigger: 'change' }
+                    ],
+                    foodId: [
+                        { required: true, message: '请选择食物', trigger: 'change' }
+                    ],
+                    quantity: [
+                        { required: true, message: '请输入食用量', trigger: 'blur' }
+                    ]
+                },
+                
+                foodDatabase: [],
+                foodWarnings: [],
+                recipes: [],
+                recipeTags: [],
+                recommendedRecipes: [],
+                mealTypes: [
+                    { label: '早餐', value: 'breakfast' },
+                    { label: '午餐', value: 'lunch' },
+                    { label: '晚餐', value: 'dinner' }
+                ],
+                riskLevels: ['high', 'medium', 'low'],
+                
+                nutritionSuggestions: {
+                    protein: '加载中...',
+                    proteinType: 'info',
+                    fat: '加载中...',
+                    fatType: 'info',
+                    carbs: '加载中...',
+                    carbsType: 'info',
+                    custom: []
+                },
+                
+                trendChart: null,
+                balanceChart: null
+            },
+            computed: {
+                filteredFoods() {
+                    if (!this.searchKeyword) {
+                        return this.foodDatabase;
+                    }
+                    return this.foodDatabase.filter(food => 
+                        food.name.toLowerCase().includes(this.searchKeyword.toLowerCase())
+                    );
+                },
+                
+                recentFoodWarnings() {
+                    return this.foodWarnings.slice(0, 3);
+                },
+                
+                viewDateNutrition() {
+                    const viewDate = this.viewDate;
+                    const viewDateRecords = this.dietRecords.filter(record => record.date === viewDate);
+                    
+                    let totalCalories = 0;
+                    let totalProtein = 0;
+                    let totalFat = 0;
+                    let totalCarbs = 0;
+                    
+                    viewDateRecords.forEach(record => {
+                        const food = this.getFoodById(record.foodId);
+                        if (food) {
+                            const ratio = record.quantity / 100;
+                            totalCalories += food.calories * ratio;
+                            totalProtein += food.protein * ratio;
+                            totalFat += food.fat * ratio;
+                            totalCarbs += food.carbs * ratio;
+                        }
+                    });
+                    
+                    const proteinGoal = Math.round(this.currentUser.calorie_goal * 0.15 / 4);
+                    const fatGoal = Math.round(this.currentUser.calorie_goal * 0.25 / 9);
+                    const carbsGoal = Math.round(this.currentUser.calorie_goal * 0.6 / 4);
+                    
+                    const caloriesPercent = Math.min(Math.round((totalCalories / this.currentUser.calorie_goal) * 100), 100);
+                    const proteinPercent = Math.min(Math.round((totalProtein / proteinGoal) * 100), 100);
+                    const fatPercent = Math.min(Math.round((totalFat / fatGoal) * 100), 100);
+                    const carbsPercent = Math.min(Math.round((totalCarbs / carbsGoal) * 100), 100);
+                    
+                    let status = 'success';
+                    let statusText = '优秀';
+                    let statusDetails = [];
+                    
+                    if (totalCalories === 0) {
+                        status = 'info';
+                        statusText = '无数据';
+                        statusDetails.push('今日暂无饮食记录');
+                    } else if (caloriesPercent < 70) {
+                        status = 'warning';
+                        statusText = '摄入不足';
+                        statusDetails.push(`热量摄入仅达目标${caloriesPercent}%`);
+                    } else if (caloriesPercent >= 70 && caloriesPercent <= 90) {
+                        status = 'success';
+                        statusText = '良好';
+                        statusDetails.push('热量摄入适中');
+                    } else if (caloriesPercent > 90 && caloriesPercent <= 110) {
+                        status = 'warning';
+                        statusText = '接近上限';
+                        statusDetails.push('热量摄入接近目标上限');
+                    } else {
+                        status = 'danger';
+                        statusText = '摄入过量';
+                        statusDetails.push(`热量超标${caloriesPercent - 100}%`);
+                    }
+                    
+                    if (proteinPercent < 80) statusDetails.push('蛋白质摄入不足');
+                    else if (proteinPercent > 120) statusDetails.push('蛋白质摄入偏高');
+                    else statusDetails.push('蛋白质摄入合理');
+                    
+                    if (fatPercent > 110) statusDetails.push('脂肪摄入偏高');
+                    else if (fatPercent < 70) statusDetails.push('脂肪摄入不足');
+                    else statusDetails.push('脂肪摄入合理');
+                    
+                    if (carbsPercent < 70) statusDetails.push('碳水摄入不足');
+                    else if (carbsPercent > 120) statusDetails.push('碳水摄入偏高');
+                    else statusDetails.push('碳水摄入合理');
+                    
+                    return {
+                        calories: Math.round(totalCalories),
+                        protein: Math.round(totalProtein),
+                        fat: Math.round(totalFat),
+                        carbs: Math.round(totalCarbs),
+                        proteinGoal: proteinGoal,
+                        fatGoal: fatGoal,
+                        carbsGoal: carbsGoal,
+                        caloriesPercent: caloriesPercent,
+                        proteinPercent: proteinPercent,
+                        fatPercent: fatPercent,
+                        carbsPercent: carbsPercent,
+                        caloriesColor: caloriesPercent > 90 ? (caloriesPercent > 110 ? '#F56C6C' : '#E6A23C') : '#67C23A',
+                        proteinColor: proteinPercent > 90 ? (proteinPercent > 110 ? '#F56C6C' : '#E6A23C') : '#409EFF',
+                        fatColor: fatPercent > 90 ? (fatPercent > 110 ? '#F56C6C' : '#E6A23C') : '#E6A23C',
+                        carbsColor: carbsPercent > 90 ? (carbsPercent > 110 ? '#F56C6C' : '#E6A23C') : '#F56C6C',
+                        status: status,
+                        statusText: statusText,
+                        statusDetails: statusDetails
+                    };
+                },
+                
+                healthStats() {
+                    if (!this.currentUser.age || !this.currentUser.height || !this.currentUser.weight || 
+                        this.currentUser.age <= 0 || this.currentUser.height <= 0 || this.currentUser.weight <= 0) {
+                        return {
+                            bmi: '-',
+                            bmiStatus: '请完善数据',
+                            bmiType: 'info',
+                            bmr: '-',
+                            tdee: '-',
+                            idealWeight: '-',
+                            weightStatus: '请完善数据',
+                            weightType: 'info',
+                            bodyFat: '-'
+                        };
+                    }
+                    
+                    const bmi = this.calculateBMI();
+                    let bmiStatus = '正常';
+                    let bmiType = 'success';
+                    
+                    if (bmi < 18.5) {
+                        bmiStatus = '偏瘦';
+                        bmiType = 'warning';
+                    } else if (bmi >= 18.5 && bmi < 24) {
+                        bmiStatus = '正常';
+                        bmiType = 'success';
+                    } else if (bmi >= 24 && bmi < 28) {
+                        bmiStatus = '超重';
+                        bmiType = 'warning';
+                    } else {
+                        bmiStatus = '肥胖';
+                        bmiType = 'danger';
+                    }
+                    
+                    let bmr = 0;
+                    if (this.currentUser.gender === 'male') {
+                        bmr = 10 * this.currentUser.weight + 6.25 * this.currentUser.height - 5 * this.currentUser.age + 5;
+                    } else {
+                        bmr = 10 * this.currentUser.weight + 6.25 * this.currentUser.height - 5 * this.currentUser.age - 161;
+                    }
+                    
+                    const activityLevel = 1.2;
+                    const tdee = Math.round(bmr * activityLevel);
+                    
+                    const heightInMeter = this.currentUser.height / 100;
+                    const minIdealWeight = Math.round(18.5 * heightInMeter * heightInMeter);
+                    const maxIdealWeight = Math.round(24 * heightInMeter * heightInMeter);
+                    
+                    let weightStatus = '正常';
+                    let weightType = 'success';
+                    if (this.currentUser.weight < minIdealWeight) {
+                        weightStatus = '偏轻';
+                        weightType = 'warning';
+                    } else if (this.currentUser.weight > maxIdealWeight) {
+                        weightStatus = '超重';
+                        weightType = 'danger';
+                    }
+                    
+                    let bodyFat = 0;
+                    if (this.currentUser.gender === 'male') {
+                        bodyFat = (1.20 * bmi + 0.23 * this.currentUser.age - 16.2).toFixed(1);
+                    } else {
+                        bodyFat = (1.20 * bmi + 0.23 * this.currentUser.age - 5.4).toFixed(1);
+                    }
+                    
+                    return {
+                        bmi: bmi,
+                        bmiStatus: bmiStatus,
+                        bmiType: bmiType,
+                        bmr: Math.round(bmr) + ' kcal/天',
+                        tdee: tdee + ' kcal/天',
+                        idealWeight: `${minIdealWeight} - ${maxIdealWeight} kg`,
+                        weightStatus: weightStatus,
+                        weightType: weightType,
+                        bodyFat: bodyFat + '%'
+                    };
+                }
+            },
+            async mounted() {
+                setInterval(() => {
+                    this.currentTime = new Date().toLocaleString();
+                }, 1000);
+                
+                await this.loadInitialData();
+                
+                window.addEventListener('resize', this.handleResize);
+            },
+            watch: {
+                activeMenu(newVal) {
+                    if (newVal === 'nutrition') {
+                        this.$nextTick(() => {
+                            setTimeout(() => {
+                                this.initCharts();
+                            }, 300);
+                        });
+                    }
+                },
+                dietRecords: {
+                    handler() {
+                        this.updateNutritionSuggestions();
+                        this.$nextTick(() => {
+                            setTimeout(() => {
+                                this.initCharts();
+                            }, 100);
+                        });
+                    },
+                    deep: true
+                },
+                'dietForm.foodId': function(newVal) {
+                    if (newVal && this.dietForm.quantity) {
+                        this.calculateCalories();
+                    }
+                },
+                'dietForm.quantity': function(newVal) {
+                    if (newVal && this.dietForm.foodId) {
+                        this.calculateCalories();
+                    }
+                }
+            },
+            methods: {
+                async loadInitialData() {
+                    try {
+                        this.$message({
+                            message: '正在加载数据...',
+                            type: 'info',
+                            duration: 1000
+                        });
+
+                        await this.loadCurrentUser();
+                        
+                        await Promise.all([
+                            this.loadFoodDatabase(),
+                            this.loadFoodWarnings(),
+                            this.loadRecipes(),
+                            this.loadRecipeTags(),
+                            this.loadDietRecords(),
+                            this.loadRecommendedRecipes()
+                        ]);
+
+                        this.$nextTick(() => {
+                            setTimeout(() => {
+                                this.initCharts();
+                            }, 500);
+                        });
+
+                    } catch (error) {
+                        this.$message.error('数据加载失败: ' + error.message);
+                    }
+                },
+
+                async loadCurrentUser() {
+                    this.loadingUser = true;
+                    try {
+                        const userData = await api.get('/user/current');
+                        if (userData.success) {
+                            this.currentUser = { ...this.currentUser, ...userData.data };
+                        }
+                    } catch (error) {
+                        this.$message.error('加载用户信息失败');
+                        throw error;
+                    } finally {
+                        this.loadingUser = false;
+                    }
+                },
+
+                async loadFoodDatabase() {
+                    this.loadingFoodDatabase = true;
+                    try {
+                        const result = await api.get('/foods');
+                        if (result.success) {
+                            this.foodDatabase = result.data;
+                        }
+                    } catch (error) {
+                        this.$message.error('加载食品数据库失败');
+                        throw error;
+                    } finally {
+                        this.loadingFoodDatabase = false;
+                    }
+                },
+
+                async loadFoodWarnings() {
+                    this.loadingWarnings = true;
+                    try {
+                        const result = await api.get('/food-warnings');
+                        if (result.success) {
+                            this.foodWarnings = result.data;
+                        }
+                    } catch (error) {
+                        this.$message.error('加载安全预警失败');
+                        throw error;
+                    } finally {
+                        this.loadingWarnings = false;
+                    }
+                },
+
+                async loadRecipes() {
+                    this.loadingRecipes = true;
+                    try {
+                        const result = await api.get('/recipes');
+                        if (result.success) {
+                            this.recipes = result.data.map(recipe => ({
+                                id: recipe.id,
+                                name: recipe.name || recipe.title,
+                                description: recipe.description,
+                                imageUrl: recipe.imageUrl,
+                                prepTime: recipe.prepTime || recipe.cookingTime,
+                                mealType: recipe.mealType || recipe.difficulty,
+                                calories: recipe.calories,
+                                ingredients: recipe.ingredients,
+                                steps: recipe.steps
+                            }));
+                        }
+                    } catch (error) {
+                        this.$message.error('加载食谱失败');
+                        throw error;
+                    } finally {
+                        this.loadingRecipes = false;
+                    }
+                },
+
+                async loadRecommendedRecipes() {
+                    try {
+                        const result = await api.get('/recipes/recommended');
+                        if (result.success) {
+                            this.recommendedRecipes = result.data.map(recipe => ({
+                                id: recipe.id,
+                                name: recipe.name || recipe.title,
+                                description: recipe.description,
+                                imageUrl: recipe.imageUrl,
+                                prepTime: recipe.prepTime || recipe.cookingTime,
+                                mealType: recipe.mealType || recipe.difficulty,
+                                calories: recipe.calories
+                            }));
+                        }
+                    } catch (error) {
+                        this.recommendedRecipes = [];
+                    }
+                },
+
+                async loadRecipeTags() {
+                    try {
+                        const result = await api.get('/recipe-tags');
+                        if (result.success) {
+                            this.recipeTags = result.data;
+                        }
+                    } catch (error) {
+                        this.recipeTags = [];
+                    }
+                },
+
+                async loadDietRecords() {
+                    this.loadingDietRecords = true;
+                    try {
+                        const result = await api.get('/diet-records');
+                        if (result.success) {
+                            this.dietRecords = result.data;
+                        }
+                    } catch (error) {
+                        this.$message.error('加载饮食记录失败');
+                        throw error;
+                    } finally {
+                        this.loadingDietRecords = false;
+                    }
+                },
+
+                calculateCalories() {
+                    const food = this.getFoodById(this.dietForm.foodId);
+                    if (food) {
+                        const ratio = this.dietForm.quantity / 100;
+                        this.dietForm.calories = Math.round(food.calories * ratio);
+                    }
+                },
+                
+                calculateFoodCalories(foodId, quantity) {
+                    const food = this.getFoodById(foodId);
+                    if (food) {
+                        const ratio = quantity / 100;
+                        return Math.round(food.calories * ratio);
+                    }
+                    return 0;
+                },
+                
+                calculateBMI() {
+                    if (!this.currentUser.height || !this.currentUser.weight || 
+                        this.currentUser.height <= 0 || this.currentUser.weight <= 0) {
+                        return '-';
+                    }
+                    const heightInMeter = this.currentUser.height / 100;
+                    return (this.currentUser.weight / (heightInMeter * heightInMeter)).toFixed(1);
+                },
+                
+                getFoodById(foodId) {
+                    return this.foodDatabase.find(food => food.id === foodId);
+                },
+                
+                getFoodName(foodId) {
+                    const food = this.getFoodById(foodId);
+                    return food ? food.name : '未知食物';
+                },
+                
+                getRecipeTags(recipeId) {
+                    return this.recipeTags
+                        .filter(tag => tag.recipeId === recipeId)
+                        .map(tag => tag.tag);
+                },
+                
+                getRecipesByMealType(mealType) {
+                    return this.recipes.filter(recipe => recipe.mealType === mealType);
+                },
+                
+                getWarningsByLevel(riskLevel) {
+                    return this.foodWarnings.filter(warning => warning.riskLevel === riskLevel);
+                },
+                
+                getRiskLevelText(riskLevel) {
+                    const texts = { high: '高风险', medium: '中风险', low: '低风险' };
+                    return texts[riskLevel] || riskLevel;
+                },
+                
+                getWarningLevelText(riskLevel) {
+                    return this.getRiskLevelText(riskLevel);
+                },
+                
+                getRiskTagType(riskLevel) {
+                    const types = { high: 'danger', medium: 'warning', low: 'success' };
+                    return types[riskLevel] || 'info';
+                },
+                
+                getWarningTagType(riskLevel) {
+                    return this.getRiskTagType(riskLevel);
+                },
+                
+                formatDisplayDate(dateStr) {
+                    if (!dateStr) return '';
+                    try {
+                        const date = new Date(dateStr);
+                        if (isNaN(date.getTime())) return dateStr;
+                        return date.toLocaleDateString('zh-CN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit'
+                        });
+                    } catch (e) {
+                        return dateStr;
+                    }
+                },
+                
+                getLast7Days() {
+                    const days = [];
+                    for (let i = 6; i >= 0; i--) {
+                        const date = new Date();
+                        date.setDate(date.getDate() - i);
+                        days.push(new Date(date));
+                    }
+                    return days;
+                },
+                
+                formatDateForStorage(date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                },
+                
+                getWeeklyNutritionData() {
+                    const weeklyData = {
+                        calories: [],
+                        protein: [],
+                        fat: [],
+                        carbs: [],
+                        dates: []
+                    };
+                    
+                    const last7Days = this.getLast7Days();
+                    
+                    last7Days.forEach(date => {
+                        const dateStr = this.formatDateForStorage(date);
+                        const dayRecords = this.dietRecords.filter(record => 
+                            record.date === dateStr
+                        );
+                        
+                        let dayCalories = 0;
+                        let dayProtein = 0;
+                        let dayFat = 0;
+                        let dayCarbs = 0;
+                        
+                        dayRecords.forEach(record => {
+                            const food = this.getFoodById(record.foodId);
+                            if (food) {
+                                const ratio = record.quantity / 100;
+                                dayCalories += food.calories * ratio;
+                                dayProtein += food.protein * ratio;
+                                dayFat += food.fat * ratio;
+                                dayCarbs += food.carbs * ratio;
+                            }
+                        });
+                        
+                        weeklyData.calories.push(Math.round(dayCalories));
+                        weeklyData.protein.push(Math.round(dayProtein));
+                        weeklyData.fat.push(Math.round(dayFat));
+                        weeklyData.carbs.push(Math.round(dayCarbs));
+                        weeklyData.dates.push(this.formatDisplayDate(dateStr));
+                    });
+                    
+                    return weeklyData;
+                },
+                
+                initCharts() {
+                    const trendChartDom = document.getElementById('nutritionTrendChart');
+                    const balanceChartDom = document.getElementById('nutritionBalanceChart');
+                    
+                    if (!trendChartDom || !balanceChartDom) {
+                        return;
+                    }
+                    
+                    if (this.trendChart) {
+                        this.trendChart.dispose();
+                    }
+                    if (this.balanceChart) {
+                        this.balanceChart.dispose();
+                    }
+                    
+                    const weeklyData = this.getWeeklyNutritionData();
+                    
+                    this.trendChart = echarts.init(trendChartDom);
+                    const trendOption = {
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data: ['热量', '蛋白质', '脂肪', '碳水化合物']
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: weeklyData.dates
+                        },
+                        yAxis: {
+                            type: 'value'
+                        },
+                        series: [
+                            {
+                                name: '热量',
+                                type: 'line',
+                                data: weeklyData.calories,
+                                smooth: true,
+                                itemStyle: { color: '#409EFF' }
+                            },
+                            {
+                                name: '蛋白质',
+                                type: 'line',
+                                data: weeklyData.protein,
+                                smooth: true,
+                                itemStyle: { color: '#67C23A' }
+                            },
+                            {
+                                name: '脂肪',
+                                type: 'line',
+                                data: weeklyData.fat,
+                                smooth: true,
+                                itemStyle: { color: '#E6A23C' }
+                            },
+                            {
+                                name: '碳水化合物',
+                                type: 'line',
+                                data: weeklyData.carbs,
+                                smooth: true,
+                                itemStyle: { color: '#F56C6C' }
+                            }
+                        ]
+                    };
+                    this.trendChart.setOption(trendOption);
+                    
+                    this.balanceChart = echarts.init(balanceChartDom);
+                    const currentNutrition = this.viewDateNutrition;
+                    
+                    const balanceOption = {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: '{a} <br/>{b}: {c}g ({d}%)'
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            left: 10,
+                            data: ['蛋白质', '脂肪', '碳水化合物']
+                        },
+                        series: [
+                            {
+                                name: '宏量营养素',
+                                type: 'pie',
+                                radius: ['50%', '70%'],
+                                avoidLabelOverlap: false,
+                                label: {
+                                    show: false,
+                                    position: 'center'
+                                },
+                                emphasis: {
+                                    label: {
+                                        show: true,
+                                        fontSize: '16',
+                                        fontWeight: 'bold'
+                                    }
+                                },
+                                labelLine: {
+                                    show: false
+                                },
+                                data: [
+                                    {value: currentNutrition.protein || 0, name: '蛋白质', itemStyle: {color: '#67C23A'}},
+                                    {value: currentNutrition.fat || 0, name: '脂肪', itemStyle: {color: '#E6A23C'}},
+                                    {value: currentNutrition.carbs || 0, name: '碳水化合物', itemStyle: {color: '#F56C6C'}}
+                                ]
+                            }
+                        ]
+                    };
+                    this.balanceChart.setOption(balanceOption);
+                },
+                
+                refreshCharts() {
+                    this.initCharts();
+                    this.$message.success('图表已刷新');
+                },
+                
+                handleResize() {
+                    if (this.trendChart) {
+                        this.trendChart.resize();
+                    }
+                    if (this.balanceChart) {
+                        this.balanceChart.resize();
+                    }
+                },
+                
+                refreshDashboard() {
+                    this.$forceUpdate();
+                    this.$nextTick(() => {
+                        this.initCharts();
+                    });
+                    this.$message.success('已更新 ' + this.formatDisplayDate(this.viewDate) + ' 的数据');
+                },
+                
+                handleLogout() {
+                    this.$confirm('确定要退出登录吗?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        window.location.href = 'index.html';
+                    }).catch(() => {
+                        this.$message.info('已取消操作');
+                    });
+                },
+                
+                showRecipeDetail(id) {
+                    this.$message.info('查看食谱详情 ID: ' + id);
+                },
+                
+                showAddDietDialog() {
+                    this.dietDialogTitle = '添加饮食记录';
+                    this.dietForm = {
+                        id: null,
+                        date: this.viewDate,
+                        foodId: null,
+                        quantity: 100,
+                        calories: 0
+                    };
+                    this.dietDialogVisible = true;
+                    if (this.$refs.dietForm) {
+                        this.$refs.dietForm.clearValidate();
+                    }
+                },
+                
+                editDietRecord(record) {
+                    this.dietDialogTitle = '编辑饮食记录';
+                    this.dietForm = { ...record };
+                    this.dietDialogVisible = true;
+                    if (this.$refs.dietForm) {
+                        this.$refs.dietForm.clearValidate();
+                    }
+                },
+                
+                async saveDietRecord() {
+                    this.$refs.dietForm.validate(async (valid) => {
+                        if (valid) {
+                            try {
+                                if (this.dietForm.id) {
+                                    const result = await api.put(`/diet-records/${this.dietForm.id}`, this.dietForm);
+                                    if (result.success) {
+                                        const index = this.dietRecords.findIndex(item => item.id === this.dietForm.id);
+                                        if (index !== -1) {
+                                            this.dietRecords.splice(index, 1, { ...this.dietForm });
+                                        }
+                                    }
+                                } else {
+                                    const result = await api.post('/diet-records', this.dietForm);
+                                    if (result.success) {
+                                        this.dietRecords.push(result.data);
+                                    }
+                                }
+                                this.dietDialogVisible = false;
+                                this.$message.success('操作成功');
+                            } catch (error) {
+                                this.$message.error('保存失败: ' + error.message);
+                            }
+                        }
+                    });
+                },
+                
+                async deleteDietRecord(record) {
+                    this.$confirm('确定要删除这条饮食记录吗?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(async () => {
+                        try {
+                            const result = await api.delete(`/diet-records/${record.id}`);
+                            if (result.success) {
+                                const index = this.dietRecords.findIndex(item => item.id === record.id);
+                                if (index !== -1) {
+                                    this.dietRecords.splice(index, 1);
+                                }
+                                this.$message.success('删除成功');
+                            }
+                        } catch (error) {
+                            this.$message.error('删除失败: ' + error.message);
+                        }
+                    }).catch(() => {
+                        this.$message.info('已取消删除');
+                    });
+                },
+                
+                addToDiet(food) {
+                    this.dietForm.foodId = food.id;
+                    this.dietForm.quantity = 100;
+                    this.calculateCalories();
+                    this.dietDialogTitle = '添加饮食记录';
+                    this.dietDialogVisible = true;
+                    this.$message.success(`已选择 ${food.name}，请完善其他信息`);
+                },
+                
+                searchFood() {
+                    if (this.searchKeyword) {
+                        this.$message.info('搜索关键词: ' + this.searchKeyword);
+                    }
+                },
+                
+                updateNutritionSuggestions() {
+                    const nutrition = this.viewDateNutrition;
+                    
+                    if (nutrition.proteinPercent >= 90) {
+                        this.nutritionSuggestions.protein = '蛋白质摄入充足，继续保持';
+                        this.nutritionSuggestions.proteinType = 'success';
+                    } else if (nutrition.proteinPercent >= 70) {
+                        this.nutritionSuggestions.protein = '蛋白质摄入基本达标';
+                        this.nutritionSuggestions.proteinType = 'warning';
+                    } else {
+                        this.nutritionSuggestions.protein = '蛋白质摄入不足，建议增加蛋白质食物';
+                        this.nutritionSuggestions.proteinType = 'error';
+                    }
+                    
+                    if (nutrition.fatPercent <= 100) {
+                        this.nutritionSuggestions.fat = '脂肪摄入合理';
+                        this.nutritionSuggestions.fatType = 'success';
+                    } else {
+                        this.nutritionSuggestions.fat = '脂肪摄入略高，建议减少油炸食品';
+                        this.nutritionSuggestions.fatType = 'warning';
+                    }
+                    
+                    if (nutrition.carbsPercent >= 80) {
+                        this.nutritionSuggestions.carbs = '碳水化合物摄入充足';
+                        this.nutritionSuggestions.carbsType = 'success';
+                    } else {
+                        this.nutritionSuggestions.carbs = '碳水化合物摄入不足，建议适当增加';
+                        this.nutritionSuggestions.carbsType = 'warning';
+                    }
+                },
+                
+                getTagType(tag) {
+                    const tagTypes = {
+                        '高蛋白': 'success', '低脂': 'success', '高纤维': 'success', '素食': 'info', '快速': 'warning',
+                        '烤制': 'warning', '低碳水': 'info', '低卡': 'success', '健康脂肪': 'success', '全谷物': 'success',
+                        '蔬菜': 'success', '沙拉': 'info', '高铁': 'warning', '意面': 'info', '番茄': 'info', '蒸制': 'success',
+                        '传统': 'info', '中式': 'info', '坚果': 'success', '清淡': 'info', '暖胃': 'info', '海鲜': 'warning',
+                        '均衡': 'success', '温暖': 'info', '轻食': 'success', '西式': 'info', '地中海风味': 'success',
+                        '营养均衡': 'success', '炖煮': 'info'
+                    };
+                    return tagTypes[tag] || '';
+                },
+                
+                async saveSettings() {
+                    try {
+                        const settingsData = {
+                            username: this.currentUser.username,
+                            email: this.currentUser.email,
+                            gender: this.currentUser.gender,
+                            age: this.currentUser.age,
+                            height: this.currentUser.height,
+                            weight: this.currentUser.weight,
+                            calorie_goal: this.currentUser.calorie_goal,
+                            diet_preferences: this.currentUser.diet_preferences,
+                            allergies: this.currentUser.allergies
+                        };
+
+                        const result = await api.put('/user/update', settingsData);
+                        if (result.success) {
+                            this.$message.success('设置已保存');
+                            
+                            const user = JSON.parse(localStorage.getItem('user') || '{}');
+                            const updatedUser = { ...user, ...result.data };
+                            localStorage.setItem('user', JSON.stringify(updatedUser));
+                            
+                            this.currentUser = { ...this.currentUser, ...result.data };
+                        }
+                    } catch (error) {
+                        if (error.message && error.message.includes('用户名或邮箱已存在')) {
+                            this.$message.error('用户名或邮箱已存在，请修改后重试');
+                        } else {
+                            this.$message.error('保存设置失败: ' + error.message);
+                        }
+                    }
+                },
+                
+                resetSettings() {
+                    this.$confirm('确定要重置设置吗？', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.loadCurrentUser();
+                        this.$message.info('设置已重置');
+                    });
+                },
+                
+                getHealthAdvice() {
+                    const stats = this.healthStats;
+                    const advice = [];
+                    
+                    if (stats.bmiStatus === '请完善数据') {
+                        advice.push('请先完善个人设置中的年龄、身高、体重信息');
+                        return advice;
+                    }
+                    
+                    if (stats.bmiStatus === '偏瘦') {
+                        advice.push('建议适当增加营养摄入，进行力量训练增加肌肉量');
+                    } else if (stats.bmiStatus === '超重' || stats.bmiStatus === '肥胖') {
+                        advice.push('建议控制饮食热量，增加有氧运动，逐步减轻体重');
+                    } else {
+                        advice.push('体重状况良好，请继续保持均衡饮食和适量运动');
+                    }
+                    
+                    return advice;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

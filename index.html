@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>食品安全与个人健康饮食管理系统</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #409EFF 0%, #64b5f6 100%);
+            color: white;
+            padding: 0 20px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .custom-logo {
+            height: 45px;
+            width: auto;
+            margin-right: 12px;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .banner {
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1490818387583-1baba5e638af?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            margin-top: 70px;
+            padding: 0 20px;
+        }
+        
+        .banner h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .banner p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .banner-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .features {
+            padding: 60px 20px;
+            text-align: center;
+        }
+        
+        .features h2 {
+            font-size: 2.2rem;
+            margin-bottom: 40px;
+            color: #409EFF;
+        }
+        
+        .feature-cards {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 300px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            font-size: 40px;
+            color: #409EFF;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        
+        .login-form {
+            width: 400px;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+            position: relative;
+            max-width: 100%;
+        }
+        
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 18px;
+            cursor: pointer;
+            color: #909399;
+        }
+        
+        .close-button:hover {
+            color: #409EFF;
+        }
+        
+        .login-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #409EFF;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #909399;
+        }
+        
+        .form-switch {
+            color: #409EFF;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .admin-entry {
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ebeef5;
+        }
+        
+        .admin-entry .el-button {
+            color: #909399;
+            font-size: 12px;
+        }
+        
+        .admin-entry .el-button:hover {
+            color: #409EFF;
+        }
+        
+        .footer {
+            background: linear-gradient(135deg, #409EFF 0%, #64b5f6 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .food-search-section {
+            padding: 60px 20px;
+            background-color: #fff;
+        }
+        
+        .food-search-section h2 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            color: #409EFF;
+        }
+        
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto 40px;
+        }
+        
+        .search-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #606266;
+            font-weight: 500;
+        }
+        
+        .food-table {
+            max-width: 1000px;
+            margin: 0 auto;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+            background-color: #409EFF;
+            color: white;
+            font-weight: bold;
+            padding: 15px;
+        }
+        
+        .table-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+            padding: 15px;
+            border-bottom: 1px solid #ebeef5;
+            align-items: center;
+        }
+        
+        .table-row:nth-child(even) {
+            background-color: #f5f7fa;
+        }
+        
+        .table-row:last-child {
+            border-bottom: none;
+        }
+        
+        .table-cell {
+            padding: 5px;
+        }
+        
+        .add-button {
+            background-color: #409EFF;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+        
+        .add-button:hover {
+            background-color: #64b5f6;
+        }
+        
+        .loading-state, .empty-state, .error-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #606266;
+        }
+        
+        .loading-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+            color: #409EFF;
+            animation: spin 1.5s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .banner h1 {
+                font-size: 2.5rem;
+            }
+            
+            .banner p {
+                font-size: 1.1rem;
+            }
+            
+            .feature-cards {
+                gap: 20px;
+            }
+            
+            .feature-card {
+                width: calc(50% - 20px);
+                min-width: 280px;
+            }
+            
+            .table-header, .table-row {
+                grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 10px;
+                height: 60px;
+            }
+            
+            .logo-text {
+                font-size: 16px;
+            }
+            
+            .custom-logo {
+                height: 35px;
+            }
+            
+            .banner {
+                height: 400px;
+                margin-top: 60px;
+            }
+            
+            .banner h1 {
+                font-size: 2rem;
+            }
+            
+            .banner p {
+                font-size: 1rem;
+                max-width: 90%;
+            }
+            
+            .banner-buttons {
+                flex-direction: column;
+                width: 80%;
+                max-width: 300px;
+            }
+            
+            .banner-buttons .el-button {
+                width: 100%;
+            }
+            
+            .features {
+                padding: 40px 15px;
+            }
+            
+            .features h2 {
+                font-size: 1.8rem;
+            }
+            
+            .feature-cards {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+            
+            .feature-card {
+                width: 100%;
+                max-width: 350px;
+                padding: 20px;
+            }
+            
+            .food-search-section {
+                padding: 40px 15px;
+            }
+            
+            .food-search-section h2 {
+                font-size: 1.8rem;
+            }
+            
+            .login-form {
+                width: 90%;
+                padding: 20px;
+            }
+            
+            .food-table {
+                display: block;
+                width: 100%;
+            }
+            
+            .table-header {
+                display: none;
+            }
+            
+            .table-row {
+                display: block !important;
+                grid-template-columns: 1fr !important;
+                padding: 15px;
+                margin-bottom: 15px;
+                background: white;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .table-cell {
+                display: flex !important;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 0;
+                border-bottom: 1px solid #f5f5f5;
+            }
+            
+            .table-cell:last-child {
+                border-bottom: none;
+                justify-content: center;
+                padding-top: 15px;
+            }
+            
+            .table-cell::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #409EFF;
+                min-width: 120px;
+                font-size: 14px;
+                text-align: left;
+            }
+            
+            .table-cell .add-button {
+                width: 100%;
+                max-width: 200px;
+            }
+            
+            .footer {
+                padding: 20px 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .banner {
+                height: 350px;
+            }
+            
+            .banner h1 {
+                font-size: 1.8rem;
+            }
+            
+            .features h2, .food-search-section h2 {
+                font-size: 1.6rem;
+            }
+            
+            .search-title {
+                font-size: 1rem;
+            }
+            
+            .table-cell::before {
+                min-width: 100px;
+                font-size: 13px;
+            }
+            
+            .table-cell {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header class="header">
+            <div class="logo-container">
+                <img src="picture/logo.png" class="custom-logo" alt="Logo" onerror="this.style.display='none'">
+                <span class="logo-text">食安健康管理系统</span>
+            </div>
+        </header>
+        
+        <div class="banner">
+            <h1>食品安全与个人健康饮食管理</h1>
+            <p>全面管理您的饮食健康，提供食品安全预警，个性化营养建议，助您拥有更健康的生活方式</p>
+            <div class="banner-buttons">
+                <el-button type="primary" size="large" @click="showLoginForm">立即登录</el-button>
+                <el-button type="success" size="large" @click="showRegisterForm">注册账号</el-button>
+            </div>
+        </div>
+        
+        <div class="food-search-section">
+            <h2>食品查询</h2>
+            
+            <div class="search-container">
+                <div class="search-title">请输入食品名称</div>
+                <el-input 
+                    placeholder="搜索食品..." 
+                    v-model="searchKeyword" 
+                    @keyup.enter.native="searchFood"
+                    style="width: 100%">
+                    <el-button slot="append" icon="el-icon-search" @click="searchFood"></el-button>
+                </el-input>
+            </div>
+            
+            <div class="loading-state" v-if="isLoading">
+                <i class="el-icon-loading loading-icon"></i>
+                <p>正在加载食品数据...</p>
+            </div>
+            
+            <div class="error-state" v-if="hasError && !isLoading">
+                <i class="el-icon-error" style="font-size: 36px; margin-bottom: 15px; color: #f56c6c;"></i>
+                <p>加载失败，请刷新页面重试</p>
+                <el-button type="primary" size="small" @click="loadFoodsFromBackend">重试</el-button>
+            </div>
+            
+            <div class="empty-state" v-if="!isLoading && !hasError && filteredFoods.length === 0">
+                <i class="el-icon-search" style="font-size: 36px; margin-bottom: 15px;"></i>
+                <p v-if="searchKeyword">未找到与 "{{ searchKeyword }}" 相关的食品</p>
+                <p v-else>暂无食品数据，请联系管理员添加</p>
+            </div>
+            
+            <div class="food-table" v-if="!isLoading && !hasError && filteredFoods.length > 0">
+                <div class="table-header">
+                    <div>食品名称</div>
+                    <div>热量(cal/100g)</div>
+                    <div>蛋白质(g)</div>
+                    <div>脂肪(g)</div>
+                    <div>碳水(g)</div>
+                    <div>操作</div>
+                </div>
+                
+                <div class="table-row" v-for="food in filteredFoods" :key="food.id">
+                    <div class="table-cell" data-label="食品名称">{{ food.name }}</div>
+                    <div class="table-cell" data-label="热量(cal/100g)">{{ food.calories }}</div>
+                    <div class="table-cell" data-label="蛋白质(g)">{{ food.protein }}</div>
+                    <div class="table-cell" data-label="脂肪(g)">{{ food.fat }}</div>
+                    <div class="table-cell" data-label="碳水(g)">{{ food.carbs }}</div>
+                    <div class="table-cell" data-label="操作">
+                        <button class="add-button" @click="addToDiet(food)">添加到饮食</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="features">
+            <h2>核心功能</h2>
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="el-icon-notebook-2"></i>
+                    </div>
+                    <h3>饮食记录</h3>
+                    <p>轻松记录每日饮食，了解营养摄入情况</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="el-icon-warning-outline"></i>
+                    </div>
+                    <h3>安全预警</h3>
+                    <p>获取食品安全预警信息，避免问题食品</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="el-icon-data-line"></i>
+                    </div>
+                    <h3>营养分析</h3>
+                    <p>专业营养分析，提供个性化饮食建议</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-overlay" v-if="showLogin">
+            <div class="login-form">
+                <span class="close-button" @click="closeModal">&times;</span>
+                <h2 class="login-title">用户登录</h2>
+                <el-form :model="loginForm" :rules="loginRules" ref="loginForm">
+                    <el-form-item prop="username">
+                        <el-input v-model="loginForm.username" prefix-icon="el-icon-user" placeholder="请输入用户名"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="password">
+                        <el-input v-model="loginForm.password" prefix-icon="el-icon-lock" type="password" placeholder="请输入密码"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" style="width: 100%" @click="handleLogin">登录</el-button>
+                    </el-form-item>
+                </el-form>
+                
+                <div class="admin-entry">
+                    <el-button 
+                        type="text" 
+                        @click="switchToAdminLogin">
+                        <i class="el-icon-s-custom"></i> 管理员登录入口
+                    </el-button>
+                </div>
+                
+                <div class="form-footer">
+                    没有账号？<span class="form-switch" @click="switchToRegister">立即注册</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-overlay" v-if="showRegister">
+            <div class="login-form">
+                <span class="close-button" @click="closeModal">&times;</span>
+                <h2 class="login-title">用户注册</h2>
+                <el-form :model="registerForm" :rules="registerRules" ref="registerForm">
+                    <el-form-item prop="username">
+                        <el-input v-model="registerForm.username" prefix-icon="el-icon-user" placeholder="请设置用户名"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="password">
+                        <el-input v-model="registerForm.password" prefix-icon="el-icon-lock" type="password" placeholder="请设置密码"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="confirmPassword">
+                        <el-input v-model="registerForm.confirmPassword" prefix-icon="el-icon-lock" type="password" placeholder="请确认密码"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="email">
+                        <el-input v-model="registerForm.email" prefix-icon="el-icon-message" placeholder="请输入邮箱"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" style="width: 100%" @click="handleRegister">注册</el-button>
+                    </el-form-item>
+                </el-form>
+                <div class="form-footer">
+                    已有账号？<span class="form-switch" @click="switchToLogin">立即登录</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-overlay" v-if="showAdminLoginModal">
+            <div class="login-form">
+                <span class="close-button" @click="closeAdminModal">&times;</span>
+                <h2 class="login-title">管理员登录</h2>
+                <el-form :model="adminLoginForm" :rules="adminLoginRules" ref="adminLoginForm">
+                    <el-form-item prop="username">
+                        <el-input v-model="adminLoginForm.username" prefix-icon="el-icon-user" placeholder="请输入管理员账号"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="password">
+                        <el-input v-model="adminLoginForm.password" prefix-icon="el-icon-lock" type="password" placeholder="请输入管理员密码"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" style="width: 100%" @click="handleAdminLogin">管理员登录</el-button>
+                    </el-form-item>
+                </el-form>
+                <div class="form-footer">
+                    <span style="color: #f56c6c; font-size: 12px;">此入口仅限系统管理员使用</span>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="footer" v-if="!showLogin && !showRegister && !showAdminLoginModal">
+            <p>© 2025 食品安全与个人健康饮食管理系统 | 版权所有</p>
+        </footer>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+        
+        const PAGE_ROUTES = {
+            ADMIN: './管理员.html',
+            USER: './功能页.html'
+        };
+        
+        const api = {
+            async request(url, options = {}) {
+                try {
+                    const token = localStorage.getItem('token');
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    };
+                    
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
+                    
+                    const fullUrl = url.startsWith('/') ? `${API_BASE_URL}${url}` : `${API_BASE_URL}/${url}`;
+                    
+                    const response = await fetch(fullUrl, {
+                        headers,
+                        ...options
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (!result.success) {
+                        if (result.message && result.message.includes('用户名或密码错误')) {
+                            throw new Error('AUTH_FAILED');
+                        }
+                        if (result.message && result.message.includes('管理员账号请使用管理员登录入口')) {
+                            throw new Error('PERMISSION_DENIED');
+                        }
+                        if (result.message && result.message.includes('普通用户账号请使用用户登录入口')) {
+                            throw new Error('PERMISSION_DENIED');
+                        }
+                        if (result.message && result.message.includes('用户名已被使用')) {
+                            throw new Error('USERNAME_EXISTS');
+                        }
+                        if (result.message && result.message.includes('邮箱已被使用')) {
+                            throw new Error('EMAIL_EXISTS');
+                        }
+                        if (result.message && result.message.includes('用户名或邮箱已存在')) {
+                            throw new Error('USER_EXISTS');
+                        }
+                        throw new Error(result.message || '请求失败');
+                    }
+                    
+                    return result;
+                } catch (error) {
+                    if (error.message === 'Failed to fetch') {
+                        throw new Error('NETWORK_ERROR');
+                    }
+                    throw error;
+                }
+            },
+
+            async get(url) {
+                return this.request(url);
+            },
+
+            async post(url, data) {
+                return this.request(url, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+            },
+
+            async put(url, data) {
+                return this.request(url, {
+                    method: 'PUT',
+                    body: JSON.stringify(data)
+                });
+            },
+
+            async delete(url) {
+                return this.request(url, {
+                    method: 'DELETE'
+                });
+            }
+        };
+
+        new Vue({
+            el: '#app',
+            data: {
+                showLogin: false,
+                showRegister: false,
+                showAdminLoginModal: false,
+                searchKeyword: '',
+                isLoading: false,
+                hasError: false,
+                foods: [],
+                
+                loginForm: {
+                    username: '',
+                    password: ''
+                },
+                registerForm: {
+                    username: '',
+                    password: '',
+                    confirmPassword: '',
+                    email: ''
+                },
+                adminLoginForm: {
+                    username: '',
+                    password: ''
+                },
+                loginRules: {
+                    username: [
+                        { required: true, message: '请输入用户名', trigger: 'blur' }
+                    ],
+                    password: [
+                        { required: true, message: '请输入密码', trigger: 'blur' }
+                    ]
+                },
+                registerRules: {
+                    username: [
+                        { required: true, message: '请输入用户名', trigger: 'blur' },
+                        { min: 2, max: 15, message: '长度在 2 到 15 个字符', trigger: 'blur' }
+                    ],
+                    password: [
+                        { required: true, message: '请输入密码', trigger: 'blur' },
+                        { min: 6, message: '密码长度不能少于6个字符', trigger: 'blur' }
+                    ],
+                    confirmPassword: [
+                        { required: true, message: '请确认密码', trigger: 'blur' }
+                    ],
+                    email: [
+                        { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+                        { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+                    ]
+                },
+                adminLoginRules: {
+                    username: [
+                        { required: true, message: '请输入管理员账号', trigger: 'blur' }
+                    ],
+                    password: [
+                        { required: true, message: '请输入管理员密码', trigger: 'blur' }
+                    ]
+                }
+            },
+            computed: {
+                filteredFoods() {
+                    if (!this.searchKeyword) {
+                        return this.foods;
+                    }
+                    return this.foods.filter(food => 
+                        food.name.toLowerCase().includes(this.searchKeyword.toLowerCase())
+                    );
+                }
+            },
+            methods: {
+                async loadFoodsFromBackend() {
+                    this.isLoading = true;
+                    this.hasError = false;
+                    
+                    try {
+                        const result = await api.get('/foods');
+                        
+                        if (result.success) {
+                            this.foods = result.data;
+                        } else {
+                            throw new Error(result.message || '获取食品数据失败');
+                        }
+                    } catch (error) {
+                        this.hasError = true;
+                        this.$message.error('加载食品数据失败，请稍后重试');
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+                
+                showLoginForm() {
+                    this.showLogin = true;
+                    this.showRegister = false;
+                    this.showAdminLoginModal = false;
+                },
+                
+                showRegisterForm() {
+                    this.showLogin = false;
+                    this.showRegister = true;
+                    this.showAdminLoginModal = false;
+                },
+                
+                switchToLogin() {
+                    this.showLogin = true;
+                    this.showRegister = false;
+                    this.showAdminLoginModal = false;
+                },
+                
+                switchToRegister() {
+                    this.showLogin = false;
+                    this.showRegister = true;
+                    this.showAdminLoginModal = false;
+                },
+                
+                switchToAdminLogin() {
+                    this.showLogin = false;
+                    this.showRegister = false;
+                    this.showAdminLoginModal = true;
+                },
+                
+                closeModal() {
+                    this.showLogin = false;
+                    this.showRegister = false;
+                    this.showAdminLoginModal = false;
+                },
+                
+                closeAdminModal() {
+                    this.showAdminLoginModal = false;
+                },
+                
+                async handleLogin() {
+                    this.$refs.loginForm.validate(async (valid) => {
+                        if (valid) {
+                            try {
+                                const result = await api.post('/auth/login', this.loginForm);
+                                
+                                if (result.success) {
+                                    localStorage.setItem('token', result.data.token);
+                                    localStorage.setItem('user', JSON.stringify(result.data.user));
+                                    
+                                    this.$message.success('登录成功，正在跳转...');
+                                    this.showLogin = false;
+                                    
+                                    setTimeout(() => {
+                                        if (result.data.user.role === 'ADMIN') {
+                                            window.location.href = PAGE_ROUTES.ADMIN;
+                                        } else {
+                                            window.location.href = PAGE_ROUTES.USER;
+                                        }
+                                    }, 1500);
+                                }
+                            } catch (error) {
+                                console.error('登录错误:', error.message);
+                                if (error.message === 'AUTH_FAILED') {
+                                    this.$message.error('用户名或密码错误，请重新输入');
+                                } else if (error.message === 'PERMISSION_DENIED') {
+                                    this.$message.error('管理员账号请使用管理员登录入口');
+                                } else if (error.message === 'NETWORK_ERROR') {
+                                    this.$message.error('网络连接失败，请检查网络设置');
+                                } else {
+                                    this.$message.error(error.message || '登录失败，请稍后重试');
+                                }
+                            }
+                        } else {
+                            this.$message.error('请填写正确的登录信息');
+                            return false;
+                        }
+                    });
+                },
+                
+                async handleRegister() {
+                    if (this.registerForm.password !== this.registerForm.confirmPassword) {
+                        this.$message.error('两次输入密码不一致!');
+                        return false;
+                    }
+                    
+                    this.$refs.registerForm.validate(async (valid) => {
+                        if (valid) {
+                            try {
+                                const result = await api.post('/auth/register', {
+                                    username: this.registerForm.username.trim(),
+                                    password: this.registerForm.password,
+                                    email: this.registerForm.email.trim()
+                                });
+                                
+                                if (result.success) {
+                                    const registeredUsername = this.registerForm.username;
+                                    this.$message.success('注册成功，请登录');
+                                    this.registerForm = {
+                                        username: '',
+                                        password: '',
+                                        confirmPassword: '',
+                                        email: ''
+                                    };
+                                    this.showRegister = false;
+                                    this.showLogin = true;
+                                    this.loginForm.username = registeredUsername;
+                                }
+                            } catch (error) {
+                                console.error('注册错误:', error.message);
+                                if (error.message === 'USERNAME_EXISTS') {
+                                    this.$message.error('用户名已被使用，请更换用户名');
+                                } else if (error.message === 'EMAIL_EXISTS') {
+                                    this.$message.error('邮箱已被使用，请更换邮箱');
+                                } else if (error.message === 'USER_EXISTS') {
+                                    this.$message.error('用户名或邮箱已存在');
+                                } else if (error.message === 'NETWORK_ERROR') {
+                                    this.$message.error('网络连接失败，请检查网络设置');
+                                } else {
+                                    this.$message.error(error.message || '注册失败，请稍后重试');
+                                }
+                            }
+                        } else {
+                            this.$message.error('请填写正确的注册信息');
+                            return false;
+                        }
+                    });
+                },
+                
+                async handleAdminLogin() {
+                    this.$refs.adminLoginForm.validate(async (valid) => {
+                        if (valid) {
+                            try {
+                                const result = await api.post('/auth/admin/login', this.adminLoginForm);
+                                
+                                if (result.success && result.data.user.role === 'ADMIN') {
+                                    localStorage.setItem('token', result.data.token);
+                                    localStorage.setItem('user', JSON.stringify(result.data.user));
+                                    
+                                    this.$message.success('管理员登录成功，正在进入管理界面...');
+                                    this.showAdminLoginModal = false;
+                                    
+                                    setTimeout(() => {
+                                        window.location.href = PAGE_ROUTES.ADMIN;
+                                    }, 1500);
+                                }
+                            } catch (error) {
+                                console.error('管理员登录错误:', error.message);
+                                if (error.message === 'AUTH_FAILED') {
+                                    this.$message.error('管理员账号或密码错误');
+                                } else if (error.message === 'PERMISSION_DENIED') {
+                                    this.$message.error('普通用户账号请使用用户登录入口');
+                                } else if (error.message === 'NETWORK_ERROR') {
+                                    this.$message.error('网络连接失败，请检查网络设置');
+                                } else {
+                                    this.$message.error(error.message || '登录失败，请稍后重试');
+                                }
+                            }
+                        }
+                    });
+                },
+                
+                searchFood() {
+                    if (this.searchKeyword) {
+                        this.$message.info(`搜索关键词: ${this.searchKeyword}`);
+                    }
+                },
+                
+                async addToDiet(food) {
+                    const token = localStorage.getItem('token');
+                    const user = localStorage.getItem('user');
+                    
+                    const isLoggedIn = !!token && token.trim() !== "" 
+                                    && !!user && user.trim() !== "" 
+                                    && user !== "undefined" 
+                                    && user !== "null";
+
+                    if (isLoggedIn) {
+                        try {
+                            const result = await api.post('/diet/add', {
+                                foodId: food.id,
+                                quantity: 100
+                            });
+                            
+                            if (result.success) {
+                                this.$message.success(`已添加 ${food.name} 到饮食记录`);
+                            } else {
+                                this.$message.error('添加失败，请稍后重试');
+                            }
+                        } catch (error) {
+                            this.$message.error('添加失败，请检查网络连接');
+                        }
+                    } else {
+                        this.$message.warning('请先登录后再添加食品到饮食记录');
+                        this.showLoginForm();
+                    }
+                },
+                
+                validateConfirmPassword(rule, value, callback) {
+                    if (value !== this.registerForm.password) {
+                        callback(new Error('两次输入密码不一致!'));
+                    } else {
+                        callback();
+                    }
+                }
+            },
+            mounted() {
+                this.loadFoodsFromBackend();
+                
+                this.registerRules.confirmPassword.push({
+                    validator: this.validateConfirmPassword.bind(this),
+                    trigger: 'blur'
+                });
+            }
+        });
+    </script>
+</body>
+</html>
