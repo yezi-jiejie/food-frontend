@@ -1,16 +1,27 @@
 {
+  "version": 2,
+  "builds": [
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    }
+  ],
   "routes": [
     {
-      "src": "/admin",
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/管理员",
       "dest": "/管理员.html"
     },
     {
-      "src": "/user", 
+      "src": "/功能页", 
       "dest": "/功能页.html"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "src": "/(.*\\.(html|css|js|png|jpg))",
+      "dest": "/$1"
     }
   ]
 }
