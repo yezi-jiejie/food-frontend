@@ -665,7 +665,7 @@
     </div>
 
     <script>
-        const API_BASE_URL = process.env.VUE_APP_API_BASE_URL + '/api';
+        const API_BASE_URL = window.env?.VUE_APP_API_URL || 'https://food-backend-production-24e0.up.railway.app';
         
         const PAGE_ROUTES = {
             ADMIN: './管理员.html',
@@ -1059,5 +1059,6 @@
 </body>
 
 </html>
+
 
 
