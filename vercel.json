@@ -1,0 +1,16 @@
+{
+  "routes": [
+    {
+      "src": "/admin",
+      "dest": "/管理员.html"
+    },
+    {
+      "src": "/user", 
+      "dest": "/功能页.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
